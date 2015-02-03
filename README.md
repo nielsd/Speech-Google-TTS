@@ -19,8 +19,8 @@ SOFTWARE OPTIONS
  * sox
 
 
-USAGE:
-======
+USAGE
+-----
 A simple example:
 
         use Speech::Google::TTS
