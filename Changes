@@ -1,5 +1,9 @@
 Revision history for Speech::Google::TTS
 
+0.74.1	07/07/2015
+	performance improvement in sox processing 
+	+ some further cosmetics by divereigh (thanks!)
+	
 0.74	28/12/2013
 	System independent default tempdir.
 
