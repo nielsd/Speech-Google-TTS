@@ -1,7 +1,7 @@
 Build.PL
 Changes
 MANIFEST
-README
+README.md
 lib/Speech/Google/TTS.pm
 t/00-load.t
 t/pod-coverage.t
