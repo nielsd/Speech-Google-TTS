@@ -3,7 +3,7 @@ Speech-Google-TTS
 Perl Module which uses Google Transaltion API as a high level Text-to-Speech Engine
 
                 Speech::Google::TTS
-                 v0.74 (21.11.2013)
+                 v0.74.1 (08.07.2015)
 
 This Module allows to use the Google TTS service behind the
 Google Translation service from Perl and is the core of the

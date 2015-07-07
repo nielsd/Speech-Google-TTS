@@ -16,7 +16,7 @@ Speech::Google::TTS - Module that uses Google Translate for text to speech synth
 
 =head1 VERSION
 
-Version 0.74
+Version 0.74.1
 
 =cut
 
