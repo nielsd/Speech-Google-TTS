@@ -126,7 +126,7 @@ sub say_text {
 			return;
 		}
 		$_ .= "." unless (/^.+[.,?!:;]$/);
-		@text = /.{1,100}[.,?!:;]|.{1,100}\s/g;
+		my @textbits = /.{1,100}[.,?!:;]|.{1,100}\s/g;
 
 		my $ua = LWP::UserAgent->new;
 		$ua->agent("Mozilla/5.0 (X11; Linux; rv:8.0) Gecko/20100101");
@@ -134,7 +134,7 @@ sub say_text {
 		$ua->conn_cache(LWP::ConnCache->new());
 		$ua->timeout($timeout);
 
-		foreach my $line (@text) {
+		foreach my $line (@textbits) {
 			# Get speech data from google and save them in temp files #
 			$line =~ s/^\s+|\s+$//g;
 			next if (length($line) == 0);
@@ -155,45 +155,57 @@ sub say_text {
 				push(@mp3list, $mp3_name);
 			}
 		}
+	}
 
 
-		# decode mp3s and concatenate #
-		my ($wav_fh, $wav_name) = tempfile(
-			"tts_XXXXXX",
-			DIR    => $tmpdir,
-			SUFFIX => ".wav",
-			UNLINK => 0
-		);
-		$self->{'filename'} = $wav_name;
+	# decode mp3s and concatenate #
+	(my $wav_fh, $wav_name) = tempfile(
+		"tts_XXXXXX",
+		DIR    => $tmpdir,
+		SUFFIX => ".wav",
+		UNLINK => 0
+	);
+	$self->{'filename'} = $wav_name;
 
 
-		# as WAV
-		if ($self->{'auformat'} eq 'wav') {
-			if (system($mpg123, "-q", "-w", $wav_name, @mp3list)) {
-				print "mpg123 failed to process sound file to WAV.";
-				return;
-			}
+	# as WAV
+	if ($self->{'auformat'} eq 'wav') {
+		if (system($mpg123, "-q", "-w", $wav_name, @mp3list)) {
+			print "mpg123 failed to process sound file to WAV.";
+			return;
 		}
 
-		# as MP3
-		elsif ($self->{'auformat'} eq 'mp3') {
-                        if (system($mpg123, "-q", $wav_name, @mp3list)) {
-                                print "mpg123 failed to process sound file to WAV.";
-                                return;
-			}
-                }
-
-
-		elsif ($self->{'auformat'} eq 'sox') {
-	#		# Set sox args and process wav file 
-	#		@soxargs = ($sox, "-q", $wav_name);
-	#		push(@soxargs, ("tempo", "-s", $speed)) if ($speed != 1);
-	#		push(@soxargs, ("rate", $samplerate)) if ($samplerate);
-	#		if (system(@soxargs)) {
-	#			print "sox failed to process sound file.";
-	#			return;
-	#		}
+		# Set sox args and process wav file 
+		rename($wav_name, $wav_name . "-temp");
+		@soxargs = ($sox, $wav_name . "-temp", "-q", $wav_name);
+		push(@soxargs, ("tempo", "-s", $speed)) if ($speed != 1);
+		push(@soxargs, ("rate", $samplerate)) if ($samplerate);
+		#print(join(' ', @soxargs). "\n");
+		if (system(@soxargs)) {
+			print "sox failed to process sound file.";
+			return;
 		}
+		unlink($wav_name . "-temp");
+	}
+
+	# as MP3
+	elsif ($self->{'auformat'} eq 'mp3') {
+		if (system($mpg123, "-q", $wav_name, @mp3list)) {
+			print "mpg123 failed to process sound file to WAV.";
+			return;
+		}
+	}
+
+
+	elsif ($self->{'auformat'} eq 'sox') {
+#		# Set sox args and process wav file 
+#		@soxargs = ($sox, "-q", $wav_name);
+#		push(@soxargs, ("tempo", "-s", $speed)) if ($speed != 1);
+#		push(@soxargs, ("rate", $samplerate)) if ($samplerate);
+#		if (system(@soxargs)) {
+#			print "sox failed to process sound file.";
+#			return;
+#		}
 	}
 	return($self);
 }
